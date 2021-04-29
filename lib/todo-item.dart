@@ -33,8 +33,10 @@ class ToDoItem extends StatelessWidget {
               decoration: isCompleted
                   ? TextDecoration.lineThrough
                   : TextDecoration.none)),
-      tileColor: isCompleted ? Colors.green[200] : Colors.grey[200],
-      selectedTileColor: Colors.blue[100],
+      tileColor: isCompleted
+          ? Theme.of(context).primaryColor.withOpacity(.3)
+          : Colors.grey.withAlpha(100),
+      selectedTileColor: Colors.blue.withOpacity(.3),
       selected: isSelected,
       onTap: () => {toggleCompleted(listIndex)},
       onLongPress: () => {selectItem(listIndex)},

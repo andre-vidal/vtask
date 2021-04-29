@@ -82,12 +82,12 @@ class ToDoListState extends State<ToDoList> {
       } else {
         setState(() => {_completedEntries.add(index)});
       }
-      print(widget.isSelectMode);
     }
   }
 
   selectItem(int index) {
     if (!widget.isSelectMode) {
+      setState(() => _checkedEntries = []);
       setState(() => _checkedEntries.add(index));
       widget.onSelectModeChange(true);
     }
@@ -108,7 +108,6 @@ class ToDoListState extends State<ToDoList> {
       autoFocus: true,
       textCapitalization: TextCapitalization.words,
     );
-    print(response is String ? response : '');
     if (response is String) {
       setState(() => _items[_selectedIndex] = response);
     }
@@ -129,7 +128,6 @@ class ToDoListState extends State<ToDoList> {
       obscuringCharacter: '•',
       textCapitalization: TextCapitalization.words,
     );
-    print(response is String ? response : '');
     if (response is String) {
       setState(() => _items.add(response is String ? response : ''));
     }
@@ -179,7 +177,7 @@ class ToDoListState extends State<ToDoList> {
                   semanticLabel: 'List Icon',
                 ),
                 const Text(
-                  'No items',
+                  'Nothing to do',
                   style: TextStyle(color: Colors.grey),
                 )
               ],
