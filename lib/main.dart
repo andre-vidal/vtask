@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_do/todo-list.dart';
+import 'package:flutter-do/todo-list.dart';
 
 GlobalKey<ToDoListState> toDoListKey = GlobalKey();
 void main() => runApp(const MyApp());
