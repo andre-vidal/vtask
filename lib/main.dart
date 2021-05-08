@@ -60,6 +60,53 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     });
   }
 
+  void confirmDelete() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Confirm Delete"),
+            titlePadding: EdgeInsets.only(left: 20.0, top: 20.0, right: 20.0),
+            contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                  child: Text(
+                    "Would you like to remove the selected item(s)?",
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                      child: TextButton(
+                        child: Text("cancel"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                      child: TextButton(
+                        child: Text("confirm"),
+                        onPressed: () {
+                          toDoListController.deleteSelectedItems();
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          );
+        });
+  }
+
   Future<bool> _onWillPop() {
     bool result = false;
     if (_isSelectMode) {
@@ -86,8 +133,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 disabledColor: Colors.white.withOpacity(.3),
                 tooltip: 'Select All',
                 icon: !_isSelectMode
-                    ? const Icon(Icons.edit)
-                    : const Icon(Icons.close),
+                    ? const Icon(Icons.keyboard_arrow_down)
+                    : const Icon(Icons.keyboard_arrow_up_rounded),
                 onPressed: !_isSelectMode
                     ? () {
                         toDoListController.startSelect();
@@ -145,22 +192,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                           disabledColor: Colors.white.withOpacity(.3),
                           tooltip: 'Delete Item(s)',
                           icon: const Icon(Icons.delete_outline),
-                          onPressed: !_isSelectMode
-                              ? null
-                              : () async {
-                                  if (await confirm(
-                                    context,
-                                    title: Text('Confirm'),
-                                    content: Text(
-                                        'Would you like to remove the selected item(s)?'),
-                                    textOK: Text('Yes'),
-                                    textCancel: Text('No'),
-                                  )) {
-                                    toDoListController.deleteSelectedItems();
-                                    return;
-                                  }
-                                  return;
-                                }),
+                          onPressed: !_isSelectMode ? null : confirmDelete),
                     ],
                   ),
                 ),
