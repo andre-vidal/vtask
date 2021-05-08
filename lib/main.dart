@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_do/todo-list.dart';
-import 'package:confirm_dialog/confirm_dialog.dart';
 
 GlobalKey<ToDoListState> toDoListKey = GlobalKey();
 void main() => runApp(const MyApp());

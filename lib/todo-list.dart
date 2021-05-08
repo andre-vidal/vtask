@@ -127,6 +127,7 @@ class ToDoListState extends State<ToDoList> {
                         padding: EdgeInsets.all(0.0),
                         child: TextFormField(
                           controller: _editItemTitleController,
+                          maxLength: 40,
                           decoration: InputDecoration(
                               border: UnderlineInputBorder(),
                               labelText: 'Description'),
@@ -241,6 +242,7 @@ class ToDoListState extends State<ToDoList> {
                         child: TextFormField(
                           controller: _newItemTitleController,
                           autofocus: true,
+                          maxLength: 40,
                           decoration: InputDecoration(
                               border: UnderlineInputBorder(),
                               labelText: 'Enter a description'),
@@ -366,6 +368,7 @@ class ToDoListState extends State<ToDoList> {
             itemBuilder: (BuildContext context, int index) {
               return ToDoItem(
                 title: _items[index].description,
+                dueDate: _items[index].dueDate.toString(),
                 isCompleted: _items[index].completed && !widget.isSelectMode,
                 isSelected:
                     _checkedEntries.contains(index) && widget.isSelectMode,

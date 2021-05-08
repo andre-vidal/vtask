@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class ToDoItem extends StatelessWidget {
   // Widget Props
   final String title;
+  final String dueDate;
   final int listIndex;
   final bool isCompleted;
   final bool isSelected;
@@ -15,6 +16,7 @@ class ToDoItem extends StatelessWidget {
   // Widget Constructor
   ToDoItem({
     required this.title,
+    this.dueDate = '-',
     required this.listIndex,
     this.isCompleted = false,
     this.isSelected = false,
@@ -22,6 +24,23 @@ class ToDoItem extends StatelessWidget {
     required this.selectItem,
     required this.editItem,
   });
+
+  String remainingDays() {
+    String result = '';
+
+    if (!isSelectMode && this.dueDate.length > 0) {
+      final today = DateTime.now().millisecondsSinceEpoch;
+      final due = DateTime.parse(this.dueDate).millisecondsSinceEpoch;
+      final difference = due - today;
+      final numberOfDays = difference / (1000 * 60 * 60 * 24);
+      final prefix = '';
+      final postFix = numberOfDays < 0 ? 'ago' : '';
+      final absNumberOfDays = numberOfDays.floor().abs();
+      result = '$prefix $absNumberOfDays days $postFix';
+    }
+
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,27 +65,45 @@ class ToDoItem extends StatelessWidget {
                 bottomRight: Radius.circular(10),
                 topRight: Radius.circular(10)),
           ),
-          title: Text(title,
-              style: TextStyle(
-                  color: Colors.white,
-                  decoration: isCompleted
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none)),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Colors.white,
+                      decoration: isCompleted
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none),
+                ),
+              ),
+              Text(
+                remainingDays(),
+                style: TextStyle(
+                    color: Colors.white.withAlpha(50),
+                    decoration: isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none),
+              ),
+            ],
+          ),
           selected: isSelected,
           onTap: () => {selectItem(listIndex)},
-          leading: !isSelectMode
-              ? null
-              : IconButton(
-                  padding: EdgeInsets.all(0.0),
-                  iconSize: 20.0,
-                  color: isSelected ? Colors.white : Colors.grey[400],
-                  disabledColor: Colors.grey[300],
-                  tooltip: 'Edit Item',
-                  icon: isSelected
-                      ? const Icon(Icons.check_box)
-                      : const Icon(Icons.check_box_outline_blank),
-                  onPressed: () => {selectItem(listIndex)},
-                ),
+          // leading: !isSelectMode
+          //     ? null
+          //     : IconButton(
+          //         padding: EdgeInsets.all(0.0),
+          //         iconSize: 20.0,
+          //         color: isSelected ? Colors.white : Colors.grey[400],
+          //         disabledColor: Colors.grey[300],
+          //         tooltip: 'Edit Item',
+          //         icon: isSelected
+          //             ? const Icon(Icons.check_box)
+          //             : const Icon(Icons.check_box_outline_blank),
+          //         onPressed: () => {selectItem(listIndex)},
+          //       ),
           trailing: !isSelectMode
               ? null
               : IconButton(
