@@ -9,7 +9,6 @@ class ToDoItem extends StatelessWidget {
   final bool isSelected;
   final bool isSelectMode;
   // Widget Functions
-  final Function toggleCompleted;
   final Function selectItem;
   final Function editItem;
 
@@ -20,47 +19,65 @@ class ToDoItem extends StatelessWidget {
     this.isCompleted = false,
     this.isSelected = false,
     this.isSelectMode = false,
-    required this.toggleCompleted,
     required this.selectItem,
     required this.editItem,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title,
-          style: TextStyle(
-              decoration: isCompleted
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none)),
-      tileColor: isCompleted
-          ? Theme.of(context).primaryColor.withOpacity(.3)
-          : Colors.grey.withAlpha(100),
-      selectedTileColor: Colors.blue.withOpacity(.3),
-      selected: isSelected,
-      onTap: () => {toggleCompleted(listIndex)},
-      onLongPress: () => {selectItem(listIndex)},
-      leading: !isSelectMode
-          ? null
-          : Icon(
-              isSelected
-                  ? Icons.check_box_outlined
-                  : Icons.check_box_outline_blank,
-              color: isSelected ? Colors.blue[400] : Colors.grey[400],
-              size: 24.0,
-              semanticLabel: 'Select',
-            ),
-      trailing: !isSelectMode
-          ? null
-          : IconButton(
-              padding: EdgeInsets.all(4.0),
-              iconSize: 24.0,
-              color: isSelected ? Colors.blue[400] : Colors.grey[400],
-              disabledColor: Colors.grey[300],
-              tooltip: 'Edit Item',
-              icon: const Icon(Icons.edit),
-              onPressed: () => {editItem(listIndex)},
-            ),
-    );
+    return Card(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        color: isCompleted
+            ? Colors.grey.withOpacity(0)
+            : isSelectMode && isSelected
+                ? Colors.red.withAlpha(150)
+                : Colors.grey.withAlpha(100),
+        shape: RoundedRectangleBorder(
+          side: BorderSide.none,
+          borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(10), topRight: Radius.circular(10)),
+        ),
+        child: ListTile(
+          tileColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            side: BorderSide.none,
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(10),
+                topRight: Radius.circular(10)),
+          ),
+          title: Text(title,
+              style: TextStyle(
+                  color: Colors.white,
+                  decoration: isCompleted
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none)),
+          selected: isSelected,
+          onTap: () => {selectItem(listIndex)},
+          leading: !isSelectMode
+              ? null
+              : IconButton(
+                  padding: EdgeInsets.all(0.0),
+                  iconSize: 20.0,
+                  color: isSelected ? Colors.white : Colors.grey[400],
+                  disabledColor: Colors.grey[300],
+                  tooltip: 'Edit Item',
+                  icon: isSelected
+                      ? const Icon(Icons.check_box)
+                      : const Icon(Icons.check_box_outline_blank),
+                  onPressed: () => {selectItem(listIndex)},
+                ),
+          trailing: !isSelectMode
+              ? null
+              : IconButton(
+                  padding: EdgeInsets.all(4.0),
+                  iconSize: 20.0,
+                  color: isSelected ? Colors.white : Colors.grey[400],
+                  disabledColor: Colors.grey[300],
+                  tooltip: 'Edit Item',
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => {editItem(listIndex)},
+                ),
+        ));
   }
 }

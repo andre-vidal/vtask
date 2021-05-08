@@ -79,66 +79,103 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Flutter Do'),
+          actions: <Widget>[
+            IconButton(
+                iconSize: 30.0,
+                color: Colors.white,
+                disabledColor: Colors.white.withOpacity(.3),
+                tooltip: 'Select All',
+                icon: !_isSelectMode
+                    ? const Icon(Icons.edit)
+                    : const Icon(Icons.close),
+                onPressed: !_isSelectMode
+                    ? () {
+                        toDoListController.startSelect();
+                      }
+                    : () {
+                        toDoListController.cancelSelect();
+                      }),
+          ],
           backgroundColor: Theme.of(context).primaryColor,
           backwardsCompatibility: false,
           systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.black,
               // statusBarColor: Theme.of(context).primaryColor,
               statusBarIconBrightness: Brightness.light),
+          bottom: !_isSelectMode
+              ? null
+              : PreferredSize(
+                  preferredSize: !_isSelectMode
+                      ? Size.fromHeight(0.0)
+                      : Size.fromHeight(50.0),
+                  child: Row(
+                    children: <Widget>[
+                      FlatButton(
+                        autofocus: false,
+                        clipBehavior: Clip.none,
+                        onPressed: !_isSelectMode
+                            ? null
+                            : () {
+                                toDoListController.toggleAllItems();
+                              },
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.select_all_outlined, size: 30.0),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            Text("Toggle All")
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                      IconButton(
+                          iconSize: 30.0,
+                          color: Colors.red.withAlpha(200),
+                          disabledColor: Colors.white.withOpacity(.3),
+                          tooltip: 'Delete Item(s)',
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: !_isSelectMode
+                              ? null
+                              : () async {
+                                  if (await confirm(
+                                    context,
+                                    title: Text('Confirm'),
+                                    content: Text(
+                                        'Would you like to remove the selected item(s)?'),
+                                    textOK: Text('Yes'),
+                                    textCancel: Text('No'),
+                                  )) {
+                                    toDoListController.deleteSelectedItems();
+                                    return;
+                                  }
+                                  return;
+                                }),
+                    ],
+                  ),
+                ),
         ),
         bottomNavigationBar: BottomAppBar(
           shape: const CircularNotchedRectangle(),
           child: Row(
             children: <Widget>[
-              IconButton(
-                  iconSize: 30.0,
-                  color: Theme.of(context).accentColor,
-                  disabledColor: Colors.grey.withOpacity(.3),
-                  tooltip: 'Cancel Select',
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: !_isSelectMode
-                      ? null
-                      : () {
-                          toDoListController.cancelSelect();
-                        }),
               Spacer(),
               IconButton(
                   iconSize: 30.0,
                   color: Theme.of(context).accentColor,
                   disabledColor: Colors.grey.withOpacity(.3),
                   tooltip: 'Select All',
-                  icon: const Icon(Icons.select_all_outlined),
-                  onPressed: !_isSelectMode
-                      ? null
-                      : () {
-                          toDoListController.toggleAllItems();
-                        }),
-              Spacer(),
-              Spacer(),
-              Spacer(),
+                  icon: const Icon(Icons.undo_outlined),
+                  onPressed: !_isSelectMode ? null : null),
               Spacer(),
               IconButton(
                   iconSize: 30.0,
                   color: Colors.amber[900],
                   disabledColor: Colors.grey.withOpacity(.3),
                   tooltip: 'Delete Item(s)',
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: !_isSelectMode
-                      ? null
-                      : () async {
-                          if (await confirm(
-                            context,
-                            title: Text('Confirm'),
-                            content: Text(
-                                'Would you like to remove the selected item(s)?'),
-                            textOK: Text('Yes'),
-                            textCancel: Text('No'),
-                          )) {
-                            toDoListController.deleteSelectedItems();
-                            return;
-                          }
-                          return;
-                        }),
+                  icon: const Icon(Icons.redo_outlined),
+                  onPressed: !_isSelectMode ? null : null),
+              Spacer(),
             ],
           ),
         ),

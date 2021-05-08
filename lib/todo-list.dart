@@ -6,6 +6,7 @@ import 'package:prompt_dialog/prompt_dialog.dart';
 class ToDoListController {
   VoidCallback deleteSelectedItems = () => {};
   VoidCallback toggleAllItems = () => {};
+  VoidCallback startSelect = () => {};
   VoidCallback cancelSelect = () => {};
   VoidCallback addItem = () => {};
 
@@ -13,6 +14,7 @@ class ToDoListController {
     //Remove any data that's will cause a memory leak/render errors in here
     deleteSelectedItems = () => {};
     toggleAllItems = () => {};
+    startSelect = () => {};
     cancelSelect = () => {};
     addItem = () => {};
   }
@@ -42,12 +44,17 @@ class ToDoListState extends State<ToDoList> {
   List<int> _completedEntries = [];
   List<int> _checkedEntries = [];
   int _selectedIndex = 0;
+  final _addFormKey = GlobalKey<FormState>();
+  final _editFormKey = GlobalKey<FormState>();
+  final _newItemTitleController = TextEditingController();
+  final _newItemDueDateController = TextEditingController();
+  final _editItemTitleController = TextEditingController();
+  final _editItemDueDateController = TextEditingController();
 
   deleteSelectedItems() {
     setState(() => _items.removeWhere(
         (element) => _checkedEntries.contains(_items.indexOf(element))));
     setState(() => _checkedEntries = []);
-    widget.onSelectModeChange(false);
   }
 
   toggleAllItems() {
@@ -66,13 +73,17 @@ class ToDoListState extends State<ToDoList> {
     });
   }
 
-  toggleCompleted(int index) {
+  startSelect() {
+    setState(() {
+      _checkedEntries = [];
+      widget.onSelectModeChange(true);
+    });
+  }
+
+  selectItem(int index) {
     if (widget.isSelectMode) {
       if (_checkedEntries.contains(index)) {
         setState(() => {_checkedEntries.remove(index)});
-        if (_checkedEntries.length == 0) {
-          widget.onSelectModeChange(false);
-        }
       } else {
         setState(() => {_checkedEntries.add(index)});
       }
@@ -85,35 +96,215 @@ class ToDoListState extends State<ToDoList> {
     }
   }
 
-  selectItem(int index) {
-    if (!widget.isSelectMode) {
-      setState(() => _checkedEntries = []);
-      setState(() => _checkedEntries.add(index));
-      widget.onSelectModeChange(true);
-    }
-  }
-
   editItem(int index) async {
     setState(() => _selectedIndex = index);
-    String? initialValue = _items[_selectedIndex];
-    String? response = await prompt(
-      context,
-      title: Text('Edit item'),
-      initialValue: initialValue,
-      textOK: Text('Ok'),
-      textCancel: Text('Cancel'),
-      hintText: 'Enter an item description',
-      minLines: 1,
-      maxLines: 1,
-      autoFocus: true,
-      textCapitalization: TextCapitalization.words,
-    );
-    if (response is String) {
-      setState(() => _items[_selectedIndex] = response);
-    }
+    _editItemTitleController.text = _items[_selectedIndex];
+    _editItemDueDateController.text = new DateTime.now().toString();
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Edit Item"),
+            titlePadding: EdgeInsets.only(left: 20.0, top: 20.0, right: 20.0),
+            contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+            content: Stack(
+              children: <Widget>[
+                Form(
+                  key: _editFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(0.0),
+                        child: TextFormField(
+                          controller: _editItemTitleController,
+                          decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Description'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Description is required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(0.0),
+                        child: TextFormField(
+                          controller: _editItemDueDateController,
+                          readOnly: true,
+                          onTap: () async {
+                            final DateTime? dueDate = await setDate();
+                            if (dueDate is DateTime) {
+                              setState(() => _editItemDueDateController.text =
+                                  dueDate.toString());
+                            }
+                          },
+                          decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Due Date'),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: TextButton(
+                              child: Text("cancel"),
+                              onPressed: () {
+                                setState(
+                                    () => _editItemTitleController.clear());
+                                setState(
+                                    () => _editItemDueDateController.clear());
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: TextButton(
+                              child: Text("save"),
+                              onPressed: () {
+                                if (_addFormKey.currentState!.validate()) {
+                                  _addFormKey.currentState!.save();
+                                  final currentValue =
+                                      _editItemTitleController.text;
+                                  setState(() =>
+                                      _items[_selectedIndex] = currentValue);
+                                  setState(
+                                      () => _editItemTitleController.clear());
+                                  setState(
+                                      () => _editItemDueDateController.clear());
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
   }
 
-  addItem() async {
+  setDate() async {
+    DateTime? response = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2025),
+    );
+    return response;
+  }
+
+  addItem() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("New Item"),
+            titlePadding: EdgeInsets.only(left: 20.0, top: 20.0, right: 20.0),
+            contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+            content: Stack(
+              children: <Widget>[
+                Form(
+                  key: _addFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(0.0),
+                        child: TextFormField(
+                          controller: _newItemTitleController,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Enter a description'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Description is required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(0.0),
+                        child: TextFormField(
+                          controller: _newItemDueDateController,
+                          readOnly: true,
+                          onTap: () async {
+                            final DateTime? dueDate = await setDate();
+                            if (dueDate is DateTime) {
+                              setState(() => _newItemDueDateController.text =
+                                  dueDate.toString());
+                            }
+                          },
+                          decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Due Date'),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: TextButton(
+                              child: Text("cancel"),
+                              onPressed: () {
+                                setState(() => _newItemTitleController.clear());
+                                setState(
+                                    () => _newItemDueDateController.clear());
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: TextButton(
+                              child: Text("save"),
+                              onPressed: () {
+                                if (_addFormKey.currentState!.validate()) {
+                                  _addFormKey.currentState!.save();
+                                  final currentValue =
+                                      _newItemTitleController.text;
+                                  setState(() => _items.add(
+                                      currentValue is String
+                                          ? currentValue
+                                          : ''));
+                                  setState(
+                                      () => _newItemTitleController.clear());
+                                  setState(
+                                      () => _newItemDueDateController.clear());
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  addItem2() async {
     String? response = await prompt(
       context,
       title: Text('New item'),
@@ -139,6 +330,7 @@ class ToDoListState extends State<ToDoList> {
     _controller = widget.controller;
     _controller.deleteSelectedItems = deleteSelectedItems;
     _controller.toggleAllItems = toggleAllItems;
+    _controller.startSelect = startSelect;
     _controller.cancelSelect = cancelSelect;
     _controller.addItem = addItem;
   }
@@ -158,7 +350,6 @@ class ToDoListState extends State<ToDoList> {
                     _checkedEntries.contains(index) && widget.isSelectMode,
                 isSelectMode: widget.isSelectMode,
                 listIndex: index,
-                toggleCompleted: toggleCompleted,
                 selectItem: selectItem,
                 editItem: editItem,
               );
