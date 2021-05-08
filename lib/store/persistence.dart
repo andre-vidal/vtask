@@ -1,5 +1,5 @@
-import 'package:flutter-do/model/todo.dart';
-import 'package:flutter-do/store/repository.dart';
+import 'package:flutter_do/model/todo.dart';
+import 'package:flutter_do/store/repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStore implements Repository {

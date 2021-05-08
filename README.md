@@ -1,4 +1,4 @@
-# flutter-do
+# flutter_do
 
 My Flutter To Do App
 
