@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_do/model/todo-item.dart';
-import 'package:flutter_do/todo.dart';
+import 'package:flutter_do/model/todo.dart';
+import 'package:flutter_do/todo-item.dart';
 
 class ToDoListController {
   VoidCallback deleteSelectedItems = () => {};
