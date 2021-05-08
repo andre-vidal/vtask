@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_do/model/todo.dart';
 import 'package:flutter_do/todo-item.dart';
+import 'package:flutter_do/store/persistence.dart';
 
 class ToDoListController {
   VoidCallback deleteSelectedItems = () => {};
@@ -39,8 +40,9 @@ class ToDoList extends StatefulWidget {
 }
 
 class ToDoListState extends State<ToDoList> {
+  AppStore _respository = new AppStore();
   ToDoListController _controller = ToDoListController();
-  List<ToDo> _items = [ToDo('Item A'), ToDo('Item B'), ToDo('Item C')];
+  List<ToDo> _items = [];
   List<int> _completedEntries = [];
   List<int> _checkedEntries = [];
   int _selectedIndex = 0;
@@ -55,6 +57,7 @@ class ToDoListState extends State<ToDoList> {
     setState(() => _items.removeWhere(
         (element) => _checkedEntries.contains(_items.indexOf(element))));
     setState(() => _checkedEntries = []);
+    saveData();
   }
 
   toggleAllItems() {
@@ -89,10 +92,13 @@ class ToDoListState extends State<ToDoList> {
       }
     } else {
       if (_completedEntries.contains(index)) {
+        setState(() => {_items[index].completed = false});
         setState(() => {_completedEntries.remove(index)});
       } else {
+        setState(() => {_items[index].completed = true});
         setState(() => {_completedEntries.add(index)});
       }
+      saveData();
     }
   }
 
@@ -188,6 +194,7 @@ class ToDoListState extends State<ToDoList> {
                                       () => _editItemTitleController.clear());
                                   setState(
                                       () => _editItemDueDateController.clear());
+                                  saveData();
                                   Navigator.of(context).pop();
                                 }
                               },
@@ -303,6 +310,7 @@ class ToDoListState extends State<ToDoList> {
                                       () => _newItemTitleController.clear());
                                   setState(
                                       () => _newItemDueDateController.clear());
+                                  saveData();
                                   Navigator.of(context).pop();
                                 }
                               },
@@ -319,9 +327,28 @@ class ToDoListState extends State<ToDoList> {
         });
   }
 
+  loadData() async {
+    final storedItems = await _respository.parseStringAsList('toDoList');
+    setState(() {
+      _items = storedItems;
+    });
+    _items.forEach((element) {
+      if (element.completed) {
+        setState(() {
+          _completedEntries.add(_items.indexOf(element));
+        });
+      }
+    });
+  }
+
+  saveData() async {
+    await _respository.saveListAtString('toDoList', _items);
+  }
+
   @override
   void initState() {
     super.initState();
+    loadData();
     _controller = widget.controller;
     _controller.deleteSelectedItems = deleteSelectedItems;
     _controller.toggleAllItems = toggleAllItems;
@@ -339,8 +366,7 @@ class ToDoListState extends State<ToDoList> {
             itemBuilder: (BuildContext context, int index) {
               return ToDoItem(
                 title: _items[index].description,
-                isCompleted:
-                    _completedEntries.contains(index) && !widget.isSelectMode,
+                isCompleted: _items[index].completed && !widget.isSelectMode,
                 isSelected:
                     _checkedEntries.contains(index) && widget.isSelectMode,
                 isSelectMode: widget.isSelectMode,
