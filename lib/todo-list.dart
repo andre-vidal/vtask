@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_do/todo-item.dart';
-import 'package:prompt_dialog/prompt_dialog.dart';
+import 'package:flutter_do/model/todo-item.dart';
+import 'package:flutter_do/todo.dart';
 
 class ToDoListController {
   VoidCallback deleteSelectedItems = () => {};
@@ -40,7 +40,7 @@ class ToDoList extends StatefulWidget {
 
 class ToDoListState extends State<ToDoList> {
   ToDoListController _controller = ToDoListController();
-  List<String> _items = ['Item A', 'Item B', 'Item C'];
+  List<ToDo> _items = [ToDo('Item A'), ToDo('Item B'), ToDo('Item C')];
   List<int> _completedEntries = [];
   List<int> _checkedEntries = [];
   int _selectedIndex = 0;
@@ -98,8 +98,10 @@ class ToDoListState extends State<ToDoList> {
 
   editItem(int index) async {
     setState(() => _selectedIndex = index);
-    _editItemTitleController.text = _items[_selectedIndex];
-    _editItemDueDateController.text = new DateTime.now().toString();
+    _editItemTitleController.text = _items[_selectedIndex].description;
+    final currentDueDate = _items[_selectedIndex].dueDate;
+    _editItemDueDateController.text =
+        currentDueDate is String ? currentDueDate : '';
 
     showDialog(
         context: context,
@@ -136,8 +138,10 @@ class ToDoListState extends State<ToDoList> {
                           controller: _editItemDueDateController,
                           readOnly: true,
                           onTap: () async {
-                            final DateTime? dueDate = await setDate();
-                            if (dueDate is DateTime) {
+                            final String dueDate = await setDate();
+                            if (_editItemDueDateController.text.length > 0 &&
+                                dueDate.length == 0) {
+                            } else {
                               setState(() => _editItemDueDateController.text =
                                   dueDate.toString());
                             }
@@ -170,12 +174,16 @@ class ToDoListState extends State<ToDoList> {
                             child: TextButton(
                               child: Text("save"),
                               onPressed: () {
-                                if (_addFormKey.currentState!.validate()) {
-                                  _addFormKey.currentState!.save();
-                                  final currentValue =
+                                if (_editFormKey.currentState!.validate()) {
+                                  _editFormKey.currentState!.save();
+                                  final currentDescription =
                                       _editItemTitleController.text;
-                                  setState(() =>
-                                      _items[_selectedIndex] = currentValue);
+                                  final currentDueDate =
+                                      _editItemDueDateController.text;
+                                  setState(() => _items[_selectedIndex]
+                                      .description = currentDescription);
+                                  setState(() => _items[_selectedIndex]
+                                      .dueDate = currentDueDate);
                                   setState(
                                       () => _editItemTitleController.clear());
                                   setState(
@@ -203,7 +211,7 @@ class ToDoListState extends State<ToDoList> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2025),
     );
-    return response;
+    return response is DateTime ? response.toString() : '';
   }
 
   addItem() {
@@ -243,11 +251,9 @@ class ToDoListState extends State<ToDoList> {
                           controller: _newItemDueDateController,
                           readOnly: true,
                           onTap: () async {
-                            final DateTime? dueDate = await setDate();
-                            if (dueDate is DateTime) {
-                              setState(() => _newItemDueDateController.text =
-                                  dueDate.toString());
-                            }
+                            final String dueDate = await setDate();
+                            setState(() => _newItemDueDateController.text =
+                                dueDate.toString());
                           },
                           decoration: InputDecoration(
                               border: UnderlineInputBorder(),
@@ -278,12 +284,21 @@ class ToDoListState extends State<ToDoList> {
                               onPressed: () {
                                 if (_addFormKey.currentState!.validate()) {
                                   _addFormKey.currentState!.save();
-                                  final currentValue =
+                                  final currentDescription =
                                       _newItemTitleController.text;
-                                  setState(() => _items.add(
-                                      currentValue is String
-                                          ? currentValue
-                                          : ''));
+                                  final currentDueDate =
+                                      _newItemDueDateController.text;
+                                  setState(
+                                    () => _items.add(
+                                      ToDo(
+                                          currentDescription is String
+                                              ? currentDescription
+                                              : '',
+                                          currentDueDate is String
+                                              ? currentDueDate
+                                              : ''),
+                                    ),
+                                  );
                                   setState(
                                       () => _newItemTitleController.clear());
                                   setState(
@@ -302,26 +317,6 @@ class ToDoListState extends State<ToDoList> {
             ),
           );
         });
-  }
-
-  addItem2() async {
-    String? response = await prompt(
-      context,
-      title: Text('New item'),
-      initialValue: '',
-      textOK: Text('Ok'),
-      textCancel: Text('Cancel'),
-      hintText: 'Enter an item description',
-      minLines: 1,
-      maxLines: 1,
-      autoFocus: true,
-      obscureText: false,
-      obscuringCharacter: '•',
-      textCapitalization: TextCapitalization.words,
-    );
-    if (response is String) {
-      setState(() => _items.add(response is String ? response : ''));
-    }
   }
 
   @override
@@ -343,7 +338,7 @@ class ToDoListState extends State<ToDoList> {
             itemCount: _items.length,
             itemBuilder: (BuildContext context, int index) {
               return ToDoItem(
-                title: _items[index],
+                title: _items[index].description,
                 isCompleted:
                     _completedEntries.contains(index) && !widget.isSelectMode,
                 isSelected:

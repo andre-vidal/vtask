@@ -110,7 +110,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       : Size.fromHeight(50.0),
                   child: Row(
                     children: <Widget>[
-                      FlatButton(
+                      TextButton(
                         autofocus: false,
                         clipBehavior: Clip.none,
                         onPressed: !_isSelectMode
@@ -120,11 +120,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               },
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.select_all_outlined, size: 30.0),
+                            Padding(
+                              padding: EdgeInsets.only(left: 6.0),
+                              child: Icon(
+                                Icons.select_all_outlined,
+                                size: 30.0,
+                                color: Colors.white,
+                              ),
+                            ),
                             SizedBox(
                               width: 10.0,
                             ),
-                            Text("Toggle All")
+                            Text("Toggle All",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ))
                           ],
                         ),
                       ),
