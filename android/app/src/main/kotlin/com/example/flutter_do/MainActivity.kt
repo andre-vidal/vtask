@@ -1,4 +1,4 @@
-package com.example.vtask
+package com.vidalcreates.vtask
 
 import io.flutter.embedding.android.FlutterActivity
 
