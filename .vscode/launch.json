@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "flutter_do",
+            "name": "vtask",
             "request": "launch",
             "type": "dart"
         }

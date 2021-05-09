@@ -1,5 +1,5 @@
-import 'package:flutter_do/model/todo.dart';
-import 'package:flutter_do/store/repository.dart';
+import 'package:vtask/model/todo.dart';
+import 'package:vtask/store/repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStore implements Repository {
@@ -20,7 +20,8 @@ class AppStore implements Repository {
     List<ToDo> toDoList = [];
     stringList.forEach((element) {
       List<String> values = element.split(':');
-      if (values.length > 0) {
+      if (values.length > 0 && values[0] != '') {
+        print(values[0]);
         String description = values[0];
         String dueDate = values.length > 1 ? values[1] : '';
         bool completed = values.length > 2 ? values[2] == 'true' : false;

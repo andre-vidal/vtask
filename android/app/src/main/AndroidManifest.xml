@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_do">
+    package="com.example.vtask">
    <application
-        android:label="flutter_do"
+        android:label="vtask"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

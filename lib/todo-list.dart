@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_do/model/todo.dart';
-import 'package:flutter_do/todo-item.dart';
-import 'package:flutter_do/store/persistence.dart';
+import 'package:vtask/model/todo.dart';
+import 'package:vtask/todo-item.dart';
+import 'package:vtask/store/persistence.dart';
 
 class ToDoListController {
   VoidCallback deleteSelectedItems = () => {};
@@ -331,6 +331,7 @@ class ToDoListState extends State<ToDoList> {
 
   loadData() async {
     final storedItems = await _respository.parseStringAsList('toDoList');
+    print(storedItems.length);
     setState(() {
       _items = storedItems;
     });
