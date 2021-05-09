@@ -13,7 +13,7 @@ void main() => runApp(const MyApp());
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  static const String _title = 'Flutter Do';
+  static const String _title = 'VTask';
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +52,17 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   ToDoListController toDoListController = ToDoListController();
   bool _isSelectMode = false;
+  bool _hasSelected = false;
 
   void _handleIsSelectModeChange(bool newValue) {
     setState(() {
       _isSelectMode = newValue;
+    });
+  }
+
+  void _handlehasSelectedChange(bool newValue) {
+    setState(() {
+      _hasSelected = newValue;
     });
   }
 
@@ -111,6 +118,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     if (_isSelectMode) {
       setState(() {
         _isSelectMode = false;
+        _hasSelected = false;
       });
     } else {
       result = true;
@@ -124,7 +132,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Flutter Do'),
+          title: const Text('VTask'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
+          ),
           actions: <Widget>[
             IconButton(
                 iconSize: 30.0,
@@ -153,46 +166,51 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               : PreferredSize(
                   preferredSize: !_isSelectMode
                       ? Size.fromHeight(0.0)
-                      : Size.fromHeight(50.0),
-                  child: Row(
-                    children: <Widget>[
-                      TextButton(
-                        autofocus: false,
-                        clipBehavior: Clip.none,
-                        onPressed: !_isSelectMode
-                            ? null
-                            : () {
-                                toDoListController.toggleAllItems();
-                              },
-                        child: Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(left: 6.0),
-                              child: Icon(
-                                Icons.select_all_outlined,
-                                size: 30.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10.0,
-                            ),
-                            Text("Toggle All",
-                                style: TextStyle(
+                      : Size.fromHeight(55.0),
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 5.0),
+                    child: Row(
+                      children: <Widget>[
+                        TextButton(
+                          autofocus: false,
+                          clipBehavior: Clip.none,
+                          onPressed: !_isSelectMode
+                              ? null
+                              : () {
+                                  toDoListController.toggleAllItems();
+                                },
+                          child: Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(left: 6.0),
+                                child: Icon(
+                                  Icons.select_all_outlined,
+                                  size: 30.0,
                                   color: Colors.white,
-                                ))
-                          ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text("Toggle All",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ))
+                            ],
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      IconButton(
-                          iconSize: 30.0,
-                          color: Colors.red.withAlpha(200),
-                          disabledColor: Colors.white.withOpacity(.3),
-                          tooltip: 'Delete Item(s)',
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: !_isSelectMode ? null : confirmDelete),
-                    ],
+                        Spacer(),
+                        IconButton(
+                            iconSize: 30.0,
+                            color: Colors.red.withAlpha(200),
+                            disabledColor: Colors.white.withOpacity(.3),
+                            tooltip: 'Delete Item(s)',
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: !_isSelectMode || !_hasSelected
+                                ? null
+                                : confirmDelete),
+                      ],
+                    ),
                   ),
                 ),
         ),
@@ -231,7 +249,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             controller: toDoListController,
             key: toDoListKey,
             isSelectMode: _isSelectMode,
-            onSelectModeChange: _handleIsSelectModeChange),
+            onSelectModeChange: _handleIsSelectModeChange,
+            onSelectedItemsChange: _handlehasSelectedChange),
       ),
     );
   }

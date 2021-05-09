@@ -26,13 +26,15 @@ class ToDoList extends StatefulWidget {
   final ToDoListController controller;
   final bool isSelectMode;
   final ValueChanged<bool> onSelectModeChange;
+  final ValueChanged<bool> onSelectedItemsChange;
 
   // Widget Constructor
   ToDoList(
       {required this.controller,
       required Key key,
       this.isSelectMode: false,
-      required this.onSelectModeChange})
+      required this.onSelectModeChange,
+      required this.onSelectedItemsChange})
       : super(key: key);
 
   @override
@@ -62,10 +64,15 @@ class ToDoListState extends State<ToDoList> {
 
   toggleAllItems() {
     if (_checkedEntries.length == _items.length) {
-      setState(() => _checkedEntries = []);
+      setState(() {
+        _checkedEntries = [];
+        widget.onSelectedItemsChange(false);
+      });
     } else {
-      setState(() =>
-          _checkedEntries = [for (var i = 0; i < _items.length; i += 1) i]);
+      setState(() {
+        _checkedEntries = [for (var i = 0; i < _items.length; i += 1) i];
+        widget.onSelectedItemsChange(true);
+      });
     }
   }
 
@@ -86,9 +93,19 @@ class ToDoListState extends State<ToDoList> {
   selectItem(int index) {
     if (widget.isSelectMode) {
       if (_checkedEntries.contains(index)) {
-        setState(() => {_checkedEntries.remove(index)});
+        setState(() {
+          _checkedEntries.remove(index);
+        });
+        if (_checkedEntries.length == 0) {
+          setState(() {
+            widget.onSelectedItemsChange(false);
+          });
+        }
       } else {
-        setState(() => {_checkedEntries.add(index)});
+        setState(() {
+          _checkedEntries.add(index);
+          widget.onSelectedItemsChange(true);
+        });
       }
     } else {
       if (_completedEntries.contains(index)) {

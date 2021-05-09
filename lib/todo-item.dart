@@ -55,7 +55,10 @@ class ToDoItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           side: BorderSide.none,
           borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(10), topRight: Radius.circular(10)),
+              bottomRight: Radius.circular(10),
+              topRight: Radius.circular(10),
+              bottomLeft: Radius.circular(10),
+              topLeft: Radius.circular(10)),
         ),
         child: ListTile(
           tileColor: Colors.transparent,
@@ -91,6 +94,7 @@ class ToDoItem extends StatelessWidget {
           ),
           selected: isSelected,
           onTap: () => {selectItem(listIndex)},
+          onLongPress: () => {editItem(listIndex)},
           // leading: !isSelectMode
           //     ? null
           //     : IconButton(
@@ -98,7 +102,7 @@ class ToDoItem extends StatelessWidget {
           //         iconSize: 20.0,
           //         color: isSelected ? Colors.white : Colors.grey[400],
           //         disabledColor: Colors.grey[300],
-          //         tooltip: 'Edit Item',
+          //         tooltip: 'Select Item',
           //         icon: isSelected
           //             ? const Icon(Icons.check_box)
           //             : const Icon(Icons.check_box_outline_blank),
