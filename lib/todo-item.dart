@@ -25,21 +25,45 @@ class ToDoItem extends StatelessWidget {
     required this.editItem,
   });
 
-  String remainingDays() {
+  Widget remainingDays() {
     String result = '';
+    Color textColor = Colors.white.withAlpha(50);
 
     if (!isSelectMode && this.dueDate.length > 0) {
       final today = DateTime.now().millisecondsSinceEpoch;
       final due = DateTime.parse(this.dueDate).millisecondsSinceEpoch;
       final difference = due - today;
-      final numberOfDays = difference / (1000 * 60 * 60 * 24);
+      final numberOfDays = (difference / (1000 * 60 * 60 * 24)).ceil();
       final prefix = '';
+      final absNumberOfDays = numberOfDays.abs();
       final postFix = numberOfDays < 0 ? 'ago' : '';
-      final absNumberOfDays = numberOfDays.floor().abs();
-      result = '$prefix $absNumberOfDays days $postFix';
-    }
+      final dayText = absNumberOfDays < 2 ? 'day' : 'days';
+      textColor = numberOfDays < 0
+          ? Colors.orange.withAlpha(250)
+          : Colors.white.withAlpha(50);
 
-    return result;
+      switch (numberOfDays) {
+        case 0:
+          result = 'Today';
+          textColor = Colors.yellow.withAlpha(250);
+          break;
+        case 1:
+          result = 'Tomorrow';
+          break;
+        case -1:
+          result = 'Yesterday';
+          break;
+        default:
+          result = '$prefix $absNumberOfDays $dayText $postFix';
+          break;
+      }
+    }
+    return Text(result,
+        style: TextStyle(
+            color: isCompleted ? Colors.white.withAlpha(50) : textColor,
+            decoration: isCompleted
+                ? TextDecoration.lineThrough
+                : TextDecoration.none));
   }
 
   @override
@@ -82,14 +106,7 @@ class ToDoItem extends StatelessWidget {
                           : TextDecoration.none),
                 ),
               ),
-              Text(
-                remainingDays(),
-                style: TextStyle(
-                    color: Colors.white.withAlpha(50),
-                    decoration: isCompleted
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none),
-              ),
+              remainingDays(),
             ],
           ),
           selected: isSelected,
