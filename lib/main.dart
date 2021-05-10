@@ -2,12 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vtask/todo-list.dart';
 
 GlobalKey<ToDoListState> toDoListKey = GlobalKey();
-void main() => runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
+  runApp(const MyApp());
+}
 
 /// This is the main application widget.
 class MyApp extends StatelessWidget {
@@ -53,6 +59,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   ToDoListController toDoListController = ToDoListController();
   bool _isSelectMode = false;
   bool _hasSelected = false;
+  BannerAd? myBanner;
+  AdWidget? adWidget;
+  AdSize? adSize;
 
   void _handleIsSelectModeChange(bool newValue) {
     setState(() {
@@ -124,6 +133,43 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       result = true;
     }
     return Future.value(result);
+  }
+
+  final AdListener customAdListener = AdListener(
+    // Called when an ad is successfully received.
+    onAdLoaded: (Ad ad) => print('Ad loaded.'),
+    // Called when an ad request failed.
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      ad.dispose();
+      print('Ad failed to load: $error');
+    },
+    // Called when an ad opens an overlay that covers the screen.
+    onAdOpened: (Ad ad) => print('Ad opened.'),
+    // Called when an ad removes an overlay that covers the screen.
+    onAdClosed: (Ad ad) => print('Ad closed.'),
+    // Called when an ad is in the process of leaving the application.
+    onApplicationExit: (Ad ad) => print('Left application.'),
+  );
+
+  AdWidget _getAdWidget(BuildContext context) {
+    final contextSize = MediaQuery.of(context).size;
+    final AdSize adSize = AdSize(width: contextSize.width.toInt(), height: 60);
+    // Load ads.
+    myBanner = BannerAd(
+      adUnitId: 'ca-app-pub-6163366343175647/8879307154',
+      size: adSize,
+      request: AdRequest(),
+      listener: customAdListener,
+    );
+
+    adWidget = AdWidget(ad: myBanner as BannerAd);
+    (myBanner as BannerAd).load();
+    return adWidget as AdWidget;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -245,12 +291,28 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             tooltip: 'Add Item',
             child: const Icon(Icons.add)),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        body: ToDoList(
-            controller: toDoListController,
-            key: toDoListKey,
-            isSelectMode: _isSelectMode,
-            onSelectModeChange: _handleIsSelectModeChange,
-            onSelectedItemsChange: _handlehasSelectedChange),
+        body: Column(
+          children: [
+            Expanded(
+              child: ToDoList(
+                  controller: toDoListController,
+                  key: toDoListKey,
+                  isSelectMode: _isSelectMode,
+                  onSelectModeChange: _handleIsSelectModeChange,
+                  onSelectedItemsChange: _handlehasSelectedChange),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: _getAdWidget(context),
+              width: myBanner is BannerAd
+                  ? (myBanner as BannerAd).size.width.toDouble()
+                  : null,
+              height: myBanner is BannerAd
+                  ? (myBanner as BannerAd).size.height.toDouble()
+                  : null,
+            )
+          ],
+        ),
       ),
     );
   }
