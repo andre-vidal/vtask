@@ -46,11 +46,11 @@ class ToDoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
         elevation: 0,
-        margin: EdgeInsets.zero,
+        margin: EdgeInsets.only(left: 10, right: 10),
         color: isCompleted
             ? Colors.grey.withOpacity(0)
             : isSelectMode && isSelected
-                ? Colors.red.withAlpha(150)
+                ? Theme.of(context).errorColor
                 : Colors.grey.withAlpha(100),
         shape: RoundedRectangleBorder(
           side: BorderSide.none,

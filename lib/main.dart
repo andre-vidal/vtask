@@ -31,7 +31,8 @@ class MyApp extends StatelessWidget {
           // Define the default brightness and colors.
           brightness: Brightness.dark,
           primaryColor: Colors.cyan[600],
-          accentColor: Colors.cyan[600],
+          accentColor: Colors.grey[900],
+          errorColor: Colors.red.withAlpha(150),
 
           // Define the default font family.
           fontFamily: 'Roboto',
@@ -67,6 +68,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     setState(() {
       _isSelectMode = newValue;
     });
+    if (_isSelectMode == false) {
+      _handlehasSelectedChange(false);
+    }
   }
 
   void _handlehasSelectedChange(bool newValue) {
@@ -153,7 +157,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   AdWidget _getAdWidget(BuildContext context) {
     final contextSize = MediaQuery.of(context).size;
-    final AdSize adSize = AdSize(width: contextSize.width.toInt(), height: 60);
+    final AdSize adSize = AdSize(width: contextSize.width.toInt(), height: 80);
     // Load ads.
     myBanner = BannerAd(
       adUnitId: 'ca-app-pub-6163366343175647/8879307154',
@@ -248,7 +252,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         Spacer(),
                         IconButton(
                             iconSize: 30.0,
-                            color: Colors.red.withAlpha(200),
+                            color: Theme.of(context).errorColor.withAlpha(200),
                             disabledColor: Colors.white.withOpacity(.3),
                             tooltip: 'Delete Item(s)',
                             icon: const Icon(Icons.delete_outline),
@@ -261,6 +265,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 ),
         ),
         bottomNavigationBar: BottomAppBar(
+          notchMargin: 6,
+          color: Theme.of(context).accentColor,
           shape: const CircularNotchedRectangle(),
           child: Row(
             children: <Widget>[
@@ -285,6 +291,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
+            backgroundColor: Theme.of(context).primaryColor,
             onPressed: () {
               toDoListController.addItem();
             },
