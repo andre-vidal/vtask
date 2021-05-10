@@ -62,6 +62,19 @@ class ToDoListState extends State<ToDoList> {
     saveData();
   }
 
+  deleteSelectedItem() {
+    setState(() {
+      _items
+          .removeWhere((element) => _items.indexOf(element) == _selectedIndex);
+      _completedEntries.remove(_selectedIndex);
+      _checkedEntries.remove(_selectedIndex);
+    });
+    if (_checkedEntries.length == 0) {
+      setState(() => {widget.onSelectedItemsChange(false)});
+    }
+    saveData();
+  }
+
   toggleAllItems() {
     if (_checkedEntries.length == _items.length) {
       setState(() {
@@ -182,7 +195,23 @@ class ToDoListState extends State<ToDoList> {
                             padding:
                                 const EdgeInsets.only(top: 20.0, bottom: 10.0),
                             child: TextButton(
-                              child: Text("cancel"),
+                              child: Text("Delete",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .errorColor
+                                          .withAlpha(200))),
+                              onPressed: () {
+                                deleteSelectedItem();
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                          Spacer(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: TextButton(
+                              child: Text("Cancel"),
                               onPressed: () {
                                 setState(
                                     () => _editItemTitleController.clear());
@@ -196,7 +225,7 @@ class ToDoListState extends State<ToDoList> {
                             padding:
                                 const EdgeInsets.only(top: 20.0, bottom: 10.0),
                             child: TextButton(
-                              child: Text("save"),
+                              child: Text("Save"),
                               onPressed: () {
                                 if (_editFormKey.currentState!.validate()) {
                                   _editFormKey.currentState!.save();
@@ -293,7 +322,7 @@ class ToDoListState extends State<ToDoList> {
                             padding:
                                 const EdgeInsets.only(top: 20.0, bottom: 10.0),
                             child: TextButton(
-                              child: Text("cancel"),
+                              child: Text("Cancel"),
                               onPressed: () {
                                 setState(() => _newItemTitleController.clear());
                                 setState(
@@ -306,7 +335,7 @@ class ToDoListState extends State<ToDoList> {
                             padding:
                                 const EdgeInsets.only(top: 20.0, bottom: 10.0),
                             child: TextButton(
-                              child: Text("save"),
+                              child: Text("Save"),
                               onPressed: () {
                                 if (_addFormKey.currentState!.validate()) {
                                   _addFormKey.currentState!.save();
