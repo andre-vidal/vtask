@@ -5,6 +5,7 @@ class ToDoItem extends StatelessWidget {
   // Widget Props
   final String title;
   final String dueDate;
+  final String dueTime;
   final int listIndex;
   final bool isCompleted;
   final bool isSelected;
@@ -17,6 +18,7 @@ class ToDoItem extends StatelessWidget {
   ToDoItem({
     required this.title,
     this.dueDate = '-',
+    this.dueTime = '-',
     required this.listIndex,
     this.isCompleted = false,
     this.isSelected = false,
@@ -44,7 +46,9 @@ class ToDoItem extends StatelessWidget {
 
       switch (numberOfDays) {
         case 0:
-          result = 'Today';
+          final timeDisplay =
+              this.dueTime.length > 1 ? '@ ${this.dueTime}' : '';
+          result = 'Today $timeDisplay';
           textColor = Colors.yellow.withAlpha(250);
           break;
         case 1:

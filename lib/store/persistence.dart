@@ -10,7 +10,6 @@ class AppStore implements Repository {
       bool isLast = index == value.length - 1;
       payload += '${element.toString()}${isLast ? "" : ";"}';
     });
-    print(payload);
     return saveString(key, payload);
   }
 
@@ -19,13 +18,13 @@ class AppStore implements Repository {
     List<String> stringList = payload.split(';');
     List<ToDo> toDoList = [];
     stringList.forEach((element) {
-      List<String> values = element.split(':');
+      List<String> values = element.split('~');
       if (values.length > 0 && values[0] != '') {
-        print(values[0]);
         String description = values[0];
-        String dueDate = values.length > 1 ? values[1] : '';
-        bool completed = values.length > 2 ? values[2] == 'true' : false;
-        ToDo newToDo = ToDo(description, dueDate, completed);
+        String dueDate = values[1];
+        String dueTime = values[2];
+        bool completed = values[3] == 'true' ? true : false;
+        ToDo newToDo = ToDo(description, dueDate, dueTime, completed);
         toDoList.add(newToDo);
       }
     });
