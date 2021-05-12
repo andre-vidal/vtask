@@ -41,7 +41,7 @@ class ToDoItem extends StatelessWidget {
       final postFix = numberOfDays < 0 ? 'ago' : '';
       final dayText = absNumberOfDays < 2 ? 'day' : 'days';
       textColor = numberOfDays < 0
-          ? Colors.orange.withAlpha(250)
+          ? Colors.orange.withAlpha(180)
           : Colors.white.withAlpha(50);
 
       switch (numberOfDays) {
@@ -49,7 +49,7 @@ class ToDoItem extends StatelessWidget {
           final timeDisplay =
               this.dueTime.length > 1 ? '@ ${this.dueTime}' : '';
           result = 'Today $timeDisplay';
-          textColor = Colors.yellow.withAlpha(250);
+          textColor = Colors.yellow.withAlpha(180);
           break;
         case 1:
           result = 'Tomorrow';
@@ -73,73 +73,66 @@ class ToDoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        elevation: 0,
-        margin: EdgeInsets.only(left: 10, right: 10),
-        color: isCompleted
-            ? Colors.grey.withOpacity(0)
-            : isSelectMode && isSelected
-                ? Theme.of(context).errorColor
-                : Colors.grey.withAlpha(100),
+      elevation: 0,
+      margin: EdgeInsets.only(left: 10, right: 10),
+      color: isCompleted
+          ? Colors.grey.withOpacity(0)
+          : isSelectMode && isSelected
+              ? Theme.of(context).errorColor
+              : Theme.of(context).accentColor.withAlpha(30),
+      shape: RoundedRectangleBorder(
+        side: BorderSide.none,
+        borderRadius: BorderRadius.only(
+            bottomRight: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            topLeft: Radius.circular(10)),
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.only(left: 15, right: isSelectMode ? 0 : 15),
+        tileColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           side: BorderSide.none,
           borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(10),
-              topRight: Radius.circular(10),
-              bottomLeft: Radius.circular(10),
-              topLeft: Radius.circular(10)),
+              bottomRight: Radius.circular(10), topRight: Radius.circular(10)),
         ),
-        child: ListTile(
-          tileColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            side: BorderSide.none,
-            borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(10),
-                topRight: Radius.circular(10)),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: Colors.white,
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none),
-                ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Colors.white,
+                    decoration: isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none),
               ),
-              remainingDays(),
-            ],
-          ),
-          selected: isSelected,
-          onTap: () => {selectItem(listIndex)},
-          onLongPress: () => {editItem(listIndex)},
-          // leading: !isSelectMode
-          //     ? null
-          //     : IconButton(
-          //         padding: EdgeInsets.all(0.0),
-          //         iconSize: 20.0,
-          //         color: isSelected ? Colors.white : Colors.grey[400],
-          //         disabledColor: Colors.grey[300],
-          //         tooltip: 'Select Item',
-          //         icon: isSelected
-          //             ? const Icon(Icons.check_box)
-          //             : const Icon(Icons.check_box_outline_blank),
-          //         onPressed: () => {selectItem(listIndex)},
-          //       ),
-          trailing: !isSelectMode
-              ? null
-              : IconButton(
-                  padding: EdgeInsets.all(4.0),
-                  iconSize: 20.0,
-                  color: isSelected ? Colors.white : Colors.grey[400],
-                  disabledColor: Colors.grey[300],
-                  tooltip: 'Edit Item',
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => {editItem(listIndex)},
-                ),
-        ));
+            ),
+            !isSelectMode
+                ? remainingDays()
+                : Container(
+                    margin: EdgeInsets.only(left: 0),
+                    padding: EdgeInsets.all(0),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(8)),
+                    child: IconButton(
+                      padding: EdgeInsets.only(right: 0),
+                      iconSize: 24.0,
+                      color: isSelected ? Colors.white : Colors.grey[400],
+                      disabledColor: Colors.grey[300],
+                      tooltip: 'Edit Item',
+                      icon: const Icon(Icons.edit),
+                      onPressed: () => {editItem(listIndex)},
+                    ),
+                  ),
+          ],
+        ),
+        selected: isSelected,
+        onTap: () => {selectItem(listIndex)},
+        onLongPress: () => {editItem(listIndex)},
+      ),
+    );
   }
 }

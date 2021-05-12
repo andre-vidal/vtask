@@ -264,7 +264,7 @@ class ToDoListState extends State<ToDoList> {
                                   style: TextStyle(
                                       color: Theme.of(context)
                                           .errorColor
-                                          .withAlpha(200))),
+                                          .withAlpha(255))),
                               onPressed: () {
                                 deleteSelectedItem();
                                 Navigator.of(context).pop();
@@ -279,7 +279,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -298,7 +298,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Save",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 if (_editFormKey.currentState!.validate()) {
@@ -421,7 +421,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -440,7 +440,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Save",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 if (_addFormKey.currentState!.validate()) {
