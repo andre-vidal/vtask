@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         home: MyStatefulWidget(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          splashColor: Color.fromARGB(255, 43, 44, 58).withAlpha(100),
           // Define the default brightness and colors.
           brightness: Brightness.dark,
           primaryColor: Color.fromARGB(255, 43, 44, 58),
@@ -232,10 +233,15 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       ? Size.fromHeight(0.0)
                       : Size.fromHeight(70.0),
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 5.0),
+                    padding: EdgeInsets.only(bottom: 5.0, left: 20),
                     child: Row(
                       children: <Widget>[
                         TextButton(
+                          style: ButtonStyle(
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(0)),
+                          ),
                           autofocus: false,
                           onPressed: !_isSelectMode
                               ? null
@@ -243,7 +249,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                   toDoListController.toggleAllItems();
                                 },
                           child: Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: EdgeInsets.only(left: 0),
                             padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 color: Theme.of(context).accentColor,
