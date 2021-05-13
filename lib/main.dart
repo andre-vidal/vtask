@@ -366,7 +366,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   onSelectedAllItemsChange: _handlehasAllSelectedChange),
             ),
             Container(
-              color: Colors.black,
+              color: Theme.of(context).scaffoldBackgroundColor,
               alignment: Alignment.center,
               child: _getAdWidget(context),
               width: myBanner is BannerAd
