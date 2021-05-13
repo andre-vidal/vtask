@@ -28,12 +28,13 @@ class MyApp extends StatelessWidget {
         home: MyStatefulWidget(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          splashColor: Color.fromARGB(255, 43, 44, 58).withAlpha(100),
           // Define the default brightness and colors.
           brightness: Brightness.dark,
           primaryColor: Color.fromARGB(255, 43, 44, 58),
           accentColor: Color.fromARGB(255, 146, 149, 231),
-          errorColor: Color.fromARGB(255, 193, 136, 134),
-          bottomAppBarColor: Colors.white10,
+          errorColor: Colors.orange.withAlpha(200),
+          bottomAppBarColor: Color.fromARGB(255, 43, 44, 58),
           scaffoldBackgroundColor: Color.fromARGB(255, 43, 44, 58),
 
           // Define the default font family.
@@ -62,6 +63,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   ToDoListController toDoListController = ToDoListController();
   bool _isSelectMode = false;
   bool _hasSelected = false;
+  bool _hasAllSelected = false;
   BannerAd? myBanner;
   AdWidget? adWidget;
   AdSize? adSize;
@@ -78,6 +80,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   void _handlehasSelectedChange(bool newValue) {
     setState(() {
       _hasSelected = newValue;
+    });
+  }
+
+  void _handlehasAllSelectedChange(bool newValue) {
+    setState(() {
+      _hasAllSelected = newValue;
     });
   }
 
@@ -232,10 +240,15 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       ? Size.fromHeight(0.0)
                       : Size.fromHeight(70.0),
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 5.0),
+                    padding: EdgeInsets.only(bottom: 5.0, left: 20),
                     child: Row(
                       children: <Widget>[
                         TextButton(
+                          style: ButtonStyle(
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(0)),
+                          ),
                           autofocus: false,
                           onPressed: !_isSelectMode
                               ? null
@@ -243,10 +256,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                   toDoListController.toggleAllItems();
                                 },
                           child: Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: EdgeInsets.only(left: 0),
                             padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                                color: Theme.of(context).accentColor,
+                                color: _hasAllSelected
+                                    ? Theme.of(context)
+                                        .accentColor
+                                        .withAlpha(100)
+                                    : Theme.of(context).accentColor,
                                 borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: <Widget>[
@@ -258,10 +275,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                Text("Toggle All",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ))
+                                Text(
+                                  "Toggle All",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                )
                               ],
                             ),
                           ),
@@ -292,12 +311,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 ),
         ),
         bottomNavigationBar: BottomAppBar(
-          notchMargin: 6,
+          notchMargin: 0,
           elevation: 0,
           // color: Colors.grey[900],
           shape: const CircularNotchedRectangle(),
           child: SizedBox(
-            height: 120,
+            height: 60,
             child: Column(
               children: [
                 Expanded(
@@ -322,17 +341,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       Spacer(),
                     ],
                   ),
-                ),
-                Container(
-                  color: Colors.black,
-                  alignment: Alignment.center,
-                  child: _getAdWidget(context),
-                  width: myBanner is BannerAd
-                      ? (myBanner as BannerAd).size.width.toDouble()
-                      : null,
-                  height: myBanner is BannerAd
-                      ? (myBanner as BannerAd).size.height.toDouble()
-                      : null,
                 )
               ],
             ),
@@ -354,7 +362,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   key: toDoListKey,
                   isSelectMode: _isSelectMode,
                   onSelectModeChange: _handleIsSelectModeChange,
-                  onSelectedItemsChange: _handlehasSelectedChange),
+                  onSelectedItemsChange: _handlehasSelectedChange,
+                  onSelectedAllItemsChange: _handlehasAllSelectedChange),
+            ),
+            Container(
+              color: Colors.black,
+              alignment: Alignment.center,
+              child: _getAdWidget(context),
+              width: myBanner is BannerAd
+                  ? (myBanner as BannerAd).size.width.toDouble()
+                  : null,
+              height: myBanner is BannerAd
+                  ? (myBanner as BannerAd).size.height.toDouble()
+                  : null,
             )
           ],
         ),

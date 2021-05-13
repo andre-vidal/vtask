@@ -28,6 +28,7 @@ class ToDoList extends StatefulWidget {
   final bool isSelectMode;
   final ValueChanged<bool> onSelectModeChange;
   final ValueChanged<bool> onSelectedItemsChange;
+  final ValueChanged<bool> onSelectedAllItemsChange;
 
   // Widget Constructor
   ToDoList(
@@ -35,7 +36,8 @@ class ToDoList extends StatefulWidget {
       required Key key,
       this.isSelectMode: false,
       required this.onSelectModeChange,
-      required this.onSelectedItemsChange})
+      required this.onSelectedItemsChange,
+      required this.onSelectedAllItemsChange})
       : super(key: key);
 
   @override
@@ -83,11 +85,13 @@ class ToDoListState extends State<ToDoList> {
       setState(() {
         _checkedEntries = [];
         widget.onSelectedItemsChange(false);
+        widget.onSelectedAllItemsChange(false);
       });
     } else {
       setState(() {
         _checkedEntries = [for (var i = 0; i < _items.length; i += 1) i];
         widget.onSelectedItemsChange(true);
+        widget.onSelectedAllItemsChange(true);
       });
     }
   }
@@ -123,6 +127,10 @@ class ToDoListState extends State<ToDoList> {
           widget.onSelectedItemsChange(true);
         });
       }
+      setState(() {
+        widget
+            .onSelectedAllItemsChange(_checkedEntries.length == _items.length);
+      });
     } else {
       if (_completedEntries.contains(index)) {
         setState(() => {_items[index].completed = false});
