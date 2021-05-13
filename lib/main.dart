@@ -28,11 +28,14 @@ class MyApp extends StatelessWidget {
         home: MyStatefulWidget(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          splashColor: Color.fromARGB(255, 43, 44, 58).withAlpha(100),
           // Define the default brightness and colors.
           brightness: Brightness.dark,
-          primaryColor: Colors.cyan[600],
-          accentColor: Colors.grey[900],
-          errorColor: Colors.red.withAlpha(150),
+          primaryColor: Color.fromARGB(255, 43, 44, 58),
+          accentColor: Color.fromARGB(255, 146, 149, 231),
+          errorColor: Colors.orange.withAlpha(200),
+          bottomAppBarColor: Color.fromARGB(255, 43, 44, 58),
+          scaffoldBackgroundColor: Color.fromARGB(255, 43, 44, 58),
 
           // Define the default font family.
           fontFamily: 'Roboto',
@@ -60,6 +63,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   ToDoListController toDoListController = ToDoListController();
   bool _isSelectMode = false;
   bool _hasSelected = false;
+  bool _hasAllSelected = false;
   BannerAd? myBanner;
   AdWidget? adWidget;
   AdSize? adSize;
@@ -76,6 +80,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   void _handlehasSelectedChange(bool newValue) {
     setState(() {
       _hasSelected = newValue;
+    });
+  }
+
+  void _handlehasAllSelectedChange(bool newValue) {
+    setState(() {
+      _hasAllSelected = newValue;
     });
   }
 
@@ -102,7 +112,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: TextButton(
-                        child: Text("cancel"),
+                        child: Text("cancel",
+                            style: TextStyle(
+                                color: Theme.of(context).accentColor)),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
@@ -111,7 +123,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: TextButton(
-                        child: Text("confirm"),
+                        child: Text("confirm",
+                            style: TextStyle(
+                                color: Theme.of(context).accentColor)),
                         onPressed: () {
                           toDoListController.deleteSelectedItems();
                           Navigator.of(context).pop();
@@ -157,7 +171,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   AdWidget _getAdWidget(BuildContext context) {
     final contextSize = MediaQuery.of(context).size;
-    final AdSize adSize = AdSize(width: contextSize.width.toInt(), height: 80);
+    final AdSize adSize = AdSize(width: contextSize.width.toInt(), height: 70);
     // Load ads.
     myBanner = BannerAd(
       adUnitId: 'ca-app-pub-6163366343175647/8879307154',
@@ -182,33 +196,41 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('VTask'),
+          elevation: 0,
+          title: Padding(
+            padding: EdgeInsets.only(left: 15.0),
+            child: Text('VTask'),
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(20),
             ),
           ),
           actions: <Widget>[
-            IconButton(
-                iconSize: 30.0,
-                color: Colors.white,
-                disabledColor: Colors.white.withOpacity(.3),
-                tooltip: 'Select All',
-                icon: !_isSelectMode
-                    ? const Icon(Icons.keyboard_arrow_down)
-                    : const Icon(Icons.keyboard_arrow_up_rounded),
-                onPressed: !_isSelectMode
-                    ? () {
-                        toDoListController.startSelect();
-                      }
-                    : () {
-                        toDoListController.cancelSelect();
-                      }),
+            Container(
+              margin: EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+              child: IconButton(
+                  iconSize: 30.0,
+                  color: Theme.of(context).accentColor,
+                  disabledColor: Colors.white.withOpacity(.3),
+                  tooltip: 'More Options',
+                  icon: !_isSelectMode
+                      ? const Icon(Icons.keyboard_arrow_down)
+                      : const Icon(Icons.keyboard_arrow_up_rounded),
+                  onPressed: !_isSelectMode
+                      ? () {
+                          toDoListController.startSelect();
+                        }
+                      : () {
+                          toDoListController.cancelSelect();
+                        }),
+            ),
           ],
           backgroundColor: Theme.of(context).primaryColor,
           backwardsCompatibility: false,
           systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.black,
+              statusBarColor: Theme.of(context).primaryColor,
               // statusBarColor: Theme.of(context).primaryColor,
               statusBarIconBrightness: Brightness.light),
           bottom: !_isSelectMode
@@ -216,82 +238,116 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               : PreferredSize(
                   preferredSize: !_isSelectMode
                       ? Size.fromHeight(0.0)
-                      : Size.fromHeight(55.0),
+                      : Size.fromHeight(70.0),
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 5.0),
+                    padding: EdgeInsets.only(bottom: 5.0, left: 20),
                     child: Row(
                       children: <Widget>[
                         TextButton(
+                          style: ButtonStyle(
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(0)),
+                          ),
                           autofocus: false,
-                          clipBehavior: Clip.none,
                           onPressed: !_isSelectMode
                               ? null
                               : () {
                                   toDoListController.toggleAllItems();
                                 },
-                          child: Row(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(left: 6.0),
-                                child: Icon(
-                                  Icons.select_all_outlined,
-                                  size: 30.0,
-                                  color: Colors.white,
+                          child: Container(
+                            margin: EdgeInsets.only(left: 0),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: _hasAllSelected
+                                    ? Theme.of(context)
+                                        .accentColor
+                                        .withAlpha(100)
+                                    : Theme.of(context).accentColor,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Row(
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(right: 6.0),
+                                  child: Icon(
+                                    Icons.select_all_outlined,
+                                    size: 30.0,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 10.0,
-                              ),
-                              Text("Toggle All",
+                                Text(
+                                  "Toggle All",
                                   style: TextStyle(
                                     color: Colors.white,
-                                  ))
-                            ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                         Spacer(),
-                        IconButton(
-                            iconSize: 30.0,
-                            color: Theme.of(context).errorColor.withAlpha(200),
-                            disabledColor: Colors.white.withOpacity(.3),
-                            tooltip: 'Delete Item(s)',
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: !_isSelectMode || !_hasSelected
-                                ? null
-                                : confirmDelete),
+                        Container(
+                          margin: EdgeInsets.only(right: 20),
+                          decoration: BoxDecoration(
+                              color: _hasSelected
+                                  ? Theme.of(context).errorColor
+                                  : Colors.white10,
+                              borderRadius: BorderRadius.circular(8)),
+                          child: IconButton(
+                              iconSize: 30.0,
+                              color: _hasSelected
+                                  ? Colors.white
+                                  : Theme.of(context).errorColor.withAlpha(200),
+                              disabledColor: Colors.white.withOpacity(.3),
+                              tooltip: 'Delete Item(s)',
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: !_isSelectMode || !_hasSelected
+                                  ? null
+                                  : confirmDelete),
+                        ),
                       ],
                     ),
                   ),
                 ),
         ),
         bottomNavigationBar: BottomAppBar(
-          notchMargin: 6,
-          color: Theme.of(context).accentColor,
+          notchMargin: 0,
+          elevation: 0,
+          // color: Colors.grey[900],
           shape: const CircularNotchedRectangle(),
-          child: Row(
-            children: <Widget>[
-              Spacer(),
-              IconButton(
-                  iconSize: 30.0,
-                  color: Theme.of(context).accentColor,
-                  disabledColor: Colors.grey.withOpacity(.3),
-                  tooltip: 'Select All',
-                  icon: const Icon(Icons.undo_outlined),
-                  onPressed: !_isSelectMode ? null : null),
-              Spacer(),
-              IconButton(
-                  iconSize: 30.0,
-                  color: Colors.amber[900],
-                  disabledColor: Colors.grey.withOpacity(.3),
-                  tooltip: 'Delete Item(s)',
-                  icon: const Icon(Icons.redo_outlined),
-                  onPressed: !_isSelectMode ? null : null),
-              Spacer(),
-            ],
+          child: SizedBox(
+            height: 60,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Spacer(),
+                      IconButton(
+                          iconSize: 30.0,
+                          color: Theme.of(context).accentColor,
+                          disabledColor: Colors.grey.withOpacity(.3),
+                          tooltip: 'Undo',
+                          icon: const Icon(Icons.undo_outlined),
+                          onPressed: !_isSelectMode ? null : null),
+                      Spacer(),
+                      IconButton(
+                          iconSize: 30.0,
+                          color: Colors.amber[900],
+                          disabledColor: Colors.grey.withOpacity(.3),
+                          tooltip: 'Redo',
+                          icon: const Icon(Icons.redo_outlined),
+                          onPressed: !_isSelectMode ? null : null),
+                      Spacer(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).accentColor.withAlpha(250),
             onPressed: () {
               toDoListController.addItem();
             },
@@ -306,9 +362,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   key: toDoListKey,
                   isSelectMode: _isSelectMode,
                   onSelectModeChange: _handleIsSelectModeChange,
-                  onSelectedItemsChange: _handlehasSelectedChange),
+                  onSelectedItemsChange: _handlehasSelectedChange,
+                  onSelectedAllItemsChange: _handlehasAllSelectedChange),
             ),
             Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
               alignment: Alignment.center,
               child: _getAdWidget(context),
               width: myBanner is BannerAd

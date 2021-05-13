@@ -28,6 +28,7 @@ class ToDoList extends StatefulWidget {
   final bool isSelectMode;
   final ValueChanged<bool> onSelectModeChange;
   final ValueChanged<bool> onSelectedItemsChange;
+  final ValueChanged<bool> onSelectedAllItemsChange;
 
   // Widget Constructor
   ToDoList(
@@ -35,7 +36,8 @@ class ToDoList extends StatefulWidget {
       required Key key,
       this.isSelectMode: false,
       required this.onSelectModeChange,
-      required this.onSelectedItemsChange})
+      required this.onSelectedItemsChange,
+      required this.onSelectedAllItemsChange})
       : super(key: key);
 
   @override
@@ -48,6 +50,7 @@ class ToDoListState extends State<ToDoList> {
   List<ToDo> _items = [];
   List<int> _completedEntries = [];
   List<int> _checkedEntries = [];
+  bool _isLoadingData = false;
   int _selectedIndex = 0;
   final _addFormKey = GlobalKey<FormState>();
   final _editFormKey = GlobalKey<FormState>();
@@ -57,6 +60,17 @@ class ToDoListState extends State<ToDoList> {
   final _editItemTitleController = TextEditingController();
   final _editItemDueDateController = TextEditingController();
   final _editItemDueTimeController = TextEditingController();
+
+  reorderList(oldIndex, newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final ToDo item = _items.removeAt(oldIndex);
+      _items.insert(newIndex, item);
+    });
+    saveData();
+  }
 
   deleteSelectedItems() {
     setState(() => _items.removeWhere(
@@ -83,11 +97,13 @@ class ToDoListState extends State<ToDoList> {
       setState(() {
         _checkedEntries = [];
         widget.onSelectedItemsChange(false);
+        widget.onSelectedAllItemsChange(false);
       });
     } else {
       setState(() {
         _checkedEntries = [for (var i = 0; i < _items.length; i += 1) i];
         widget.onSelectedItemsChange(true);
+        widget.onSelectedAllItemsChange(true);
       });
     }
   }
@@ -123,6 +139,10 @@ class ToDoListState extends State<ToDoList> {
           widget.onSelectedItemsChange(true);
         });
       }
+      setState(() {
+        widget
+            .onSelectedAllItemsChange(_checkedEntries.length == _items.length);
+      });
     } else {
       if (_completedEntries.contains(index)) {
         setState(() => {_items[index].completed = false});
@@ -264,7 +284,7 @@ class ToDoListState extends State<ToDoList> {
                                   style: TextStyle(
                                       color: Theme.of(context)
                                           .errorColor
-                                          .withAlpha(200))),
+                                          .withAlpha(255))),
                               onPressed: () {
                                 deleteSelectedItem();
                                 Navigator.of(context).pop();
@@ -279,7 +299,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -298,7 +318,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Save",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 if (_editFormKey.currentState!.validate()) {
@@ -421,7 +441,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -440,7 +460,7 @@ class ToDoListState extends State<ToDoList> {
                               child: Text(
                                 "Save",
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                    color: Theme.of(context).accentColor),
                               ),
                               onPressed: () {
                                 if (_addFormKey.currentState!.validate()) {
@@ -486,10 +506,10 @@ class ToDoListState extends State<ToDoList> {
   }
 
   loadData() async {
+    setState(() => {_isLoadingData = true});
     final storedItems = await _respository.parseStringAsList('toDoList');
-    setState(() {
-      _items = storedItems;
-    });
+    setState(() => {_isLoadingData = false});
+    setState(() => {_items = storedItems});
     _items.forEach((element) {
       if (element.completed) {
         setState(() {
@@ -517,43 +537,50 @@ class ToDoListState extends State<ToDoList> {
 
   @override
   Widget build(BuildContext context) {
-    return _items.length > 0
-        ? ListView.separated(
-            padding: const EdgeInsets.all(8),
-            itemCount: _items.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ToDoItem(
-                title: _items[index].description,
-                dueDate: _items[index].dueDate.toString(),
-                dueTime: _items[index].dueTime.toString(),
-                isCompleted: _items[index].completed && !widget.isSelectMode,
-                isSelected:
-                    _checkedEntries.contains(index) && widget.isSelectMode,
-                isSelectMode: widget.isSelectMode,
-                listIndex: index,
-                selectItem: selectItem,
-                editItem: editItem,
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) =>
-                const SizedBox(height: 8.0),
+    return _isLoadingData
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [CircularProgressIndicator()],
           )
-        : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.list,
-                  color: Colors.grey[300],
-                  size: 60.0,
-                  semanticLabel: 'List Icon',
+        : _items.length > 0
+            ? ReorderableListView(
+                scrollDirection: Axis.vertical,
+                proxyDecorator: null,
+                children: <Widget>[
+                  for (int index = 0; index < _items.length; index++)
+                    ToDoItem(
+                      key: ValueKey(index),
+                      title: _items[index].description,
+                      dueDate: _items[index].dueDate.toString(),
+                      dueTime: _items[index].dueTime.toString(),
+                      isCompleted:
+                          _items[index].completed && !widget.isSelectMode,
+                      isSelected: _checkedEntries.contains(index) &&
+                          widget.isSelectMode,
+                      isSelectMode: widget.isSelectMode,
+                      listIndex: index,
+                      selectItem: selectItem,
+                      editItem: editItem,
+                    )
+                ],
+                onReorder: reorderList,
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.list,
+                      color: Colors.grey[300],
+                      size: 60.0,
+                      semanticLabel: 'List Icon',
+                    ),
+                    const Text(
+                      'Nothing to do',
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  ],
                 ),
-                const Text(
-                  'Nothing to do',
-                  style: TextStyle(color: Colors.grey),
-                )
-              ],
-            ),
-          );
+              );
   }
 }
