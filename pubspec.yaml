@@ -23,8 +23,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  prompt_dialog: ^1.0.0
-  confirm_dialog: ^1.0.0
   shared_preferences: ^2.0.5
   google_mobile_ads: ^0.12.1+1
 
